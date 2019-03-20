@@ -1,5 +1,5 @@
 ---
-title: API Reference
+title: Badass API Reference
 
 language_tabs: # must be one of https://git.io/vQNgJ
   - shell
@@ -39,6 +39,7 @@ api = Kittn::APIClient.authorize!('meowmeowmeow')
 import kittn
 
 api = kittn.authorize('meowmeowmeow')
+api.meow()
 ```
 
 ```shell
