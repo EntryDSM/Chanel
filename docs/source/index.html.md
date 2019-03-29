@@ -1,13 +1,11 @@
 ---
-title: Badass API Reference
+title: API Reference
 
 language_tabs: # must be one of https://git.io/vQNgJ
-  - shell
-  - ruby
-  - python
-  - javascript
+  - HTTP
 
 toc_footers:
+  - <a href='https://entrydsm.hs.kr'>Go to the Entry page</a>
   - <a href='#'>Sign Up for a Developer Key</a>
   - <a href='https://github.com/lord/slate'>Documentation Powered by Slate</a>
 
@@ -15,225 +13,146 @@ includes:
   - errors
 
 search: true
+
 ---
 
-# Introduction
+# 개요
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+샤넬은 엔트리 서비스에서 유저 토큰(이메일 확인용 토큰, JWT 토큰) 관리를 담당하고 있는 서버입니다.
 
-We have language bindings in Shell, Ruby, Python, and JavaScript! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+# /signup
 
-This example API documentation page was created with [Slate](https://github.com/lord/slate). Feel free to edit it and use it as a base for your own API's documentation.
+## POST
 
-# Authentication
-
-> To authorize, use this code:
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
+```http
+POST /api/signup HTTP/1.1
+Host: entrydsm.hs.kr
+Content-Type: application/json
+{
+	"email": "by09115@dsm.hs.kr",
+	"password": "thisIsTrulyPassword"
+}
 ```
 
-```python
-import kittn
+> JSON 형식으로 이메일과 비밀번호를 받습니다.
 
-api = kittn.authorize('meowmeowmeow')
-api.meow()
-```
+임시적으로 회원 정보를 생성할 때 사용합니다.
 
-```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
-```
+### Attributes
 
-```javascript
-const kittn = require("kittn");
+| Parameter | Default | Description       |
+| --------- | ------- | ----------------- |
+| email     | true    | 사용자의 이메일   |
+| password  | true    | 사용자의 비밀번호 |
 
-let api = kittn.authorize("meowmeowmeow");
-```
 
-> Make sure to replace `meowmeowmeow` with your API key.
-
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
-
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
-
-`Authorization: meowmeowmeow`
 
 <aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+요청이 확인되면 DB에 <code>verification_code</code> 가 생성되어 저장됩니다.
 </aside>
 
-# Kittens
+# /verify
 
-## Get All Kittens
+## GET
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
+```http
+GET /api/verify HTTP/1.1
+Host: entrydsm.hs.kr
+User-Agent: your-client/1.0
 ```
 
-```python
-import kittn
+> Response will be like this:
 
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
+```
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
 ```
 
-```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
-```
+이메일 확인을 위해 발급받은 토큰을 검증할 때 사용합니다. 이메일을 통해 인증 링크가 발송되는데, 링크에 접속하면 에르메스와 연동이 이루어집니다.
 
-```javascript
-const kittn = require("kittn");
-
-let api = kittn.authorize("meowmeowmeow");
-let kittens = api.kittens.get();
-```
-
-> The above command returns JSON structured like this:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
-]
-```
-
-This endpoint retrieves all kittens.
-
-### HTTP Request
-
-`GET http://example.com/api/kittens`
-
-### Query Parameters
-
-| Parameter    | Default | Description                                                                      |
-| ------------ | ------- | -------------------------------------------------------------------------------- |
-| include_cats | false   | If set to true, the result will also include cats.                               |
-| available    | true    | If set to false, the result will include kittens that have already been adopted. |
+<aside class="notice">
+URL Query는 <code>/verify?code={{token}}</code> 으로 사용합니다.
+</aside>
 
 <aside class="success">
-Remember — a happy kitten is an authenticated kitten!
+인증 성공의 여부에 따라 응답이 달라집니다.
 </aside>
 
-## Get a Specific Kitten
+# /token
 
-```ruby
-require 'kittn'
+## GET
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
+```http
+GET /api/token HTTP/1.1
+Host: entrydsm.hs.kr
+User-Agent: your-client/1.0
 ```
 
-```python
-import kittn
+토큰의 유효성을 검사합니다.
 
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
+<aside class="notice">
+URL Query는 <code>/token?code={{token}}</code> 으로 사용합니다.
+</aside>
 
-```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
-```
+## POST
 
-```javascript
-const kittn = require("kittn");
-
-let api = kittn.authorize("meowmeowmeow");
-let max = api.kittens.get(2);
-```
-
-> The above command returns JSON structured like this:
-
-```json
+```http
+POST /api/token HTTP/1.1
+Host: entrydsm.hs.kr
+Content-Type: application/json
 {
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
+	"email": "by09115@dsm.hs.kr",
+	"password": "thisIsTrulyPassword"
 }
 ```
 
-This endpoint retrieves a specific kitten.
+신규 토큰을 발급합니다.
 
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
+### Attributes
 
-### HTTP Request
+| Parameter | Default | Description       |
+| --------- | ------- | ----------------- |
+| email     | true    | 사용자의 이메일   |
+| password  | true    | 사용자의 비밀번호 |
 
-`GET http://example.com/kittens/<ID>`
+## DELETE
 
-### URL Parameters
-
-| Parameter | Description                      |
-| --------- | -------------------------------- |
-| ID        | The ID of the kitten to retrieve |
-
-## Delete a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.delete(2)
+```http
+DELETE /api/token HTTP/1.1
+Host: entrydsm.hs.kr
+User-Agent: your-client/1.0
 ```
 
-```python
-import kittn
+기존에 사용중이던 토큰을 파기합니다.
 
-api = kittn.authorize('meowmeowmeow')
-api.kittens.delete(2)
+### Header
+
+| Key           | Value            | Required | Description |
+| ------------- | ---------------- | -------- | ----------- |
+| Authorization | Bearer {{token}} | True     | JWT 토큰    |
+
+<aside class="warning">
+헤더에 JWT를 담아 보낼 때에는 <code>Value</code>의 기본 양식을 준수해야 합니다.
+</aside>
+
+## PATCH
+
+```http
+PATCH /api/token HTTP/1.1
+Host: entrydsm.hs.kr
+User-Agent: your-client/1.0
 ```
 
-```shell
-curl "http://example.com/api/kittens/2"
-  -X DELETE
-  -H "Authorization: meowmeowmeow"
-```
+토큰을 재발급합니다.
 
-```javascript
-const kittn = require("kittn");
+### Header
 
-let api = kittn.authorize("meowmeowmeow");
-let max = api.kittens.delete(2);
-```
+| Key           | Value            | Required | Description   |
+| ------------- | ---------------- | -------- | ------------- |
+| Authorization | Bearer {{token}} | True     | 리프레시 토큰 |
 
-> The above command returns JSON structured like this:
+<aside class="warning">
+헤더에 JWT를 담아 보낼 때에는 <code>Value</code>의 기본 양식을 준수해야 합니다.
+</aside>
 
-```json
-{
-  "id": 2,
-  "deleted": ":("
-}
-```
-
-This endpoint deletes a specific kitten.
-
-### HTTP Request
-
-`DELETE http://example.com/kittens/<ID>`
-
-### URL Parameters
-
-| Parameter | Description                    |
-| --------- | ------------------------------ |
-| ID        | The ID of the kitten to delete |
+## 
