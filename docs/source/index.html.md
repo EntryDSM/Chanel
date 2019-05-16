@@ -1,239 +1,261 @@
 ---
-title: Badass API Reference
+title: API Reference
 
 language_tabs: # must be one of https://git.io/vQNgJ
-  - shell
-  - ruby
-  - python
-  - javascript
+  - http
 
 toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
+  - <a href='https://github.com/EntryDSM/Chanel'>Go to repository</a>
   - <a href='https://github.com/lord/slate'>Documentation Powered by Slate</a>
-
-includes:
-  - errors
 
 search: true
 ---
 
-# Introduction
+# 개요
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+샤넬은 엔트리 서비스에서 인증(유저 본인인증, JWT 토큰)을 담당하고 있는 서버입니다.
 
-We have language bindings in Shell, Ruby, Python, and JavaScript! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+# /signup
 
-This example API documentation page was created with [Slate](https://github.com/lord/slate). Feel free to edit it and use it as a base for your own API's documentation.
+## POST
 
-# Authentication
+```http
+POST /api/v1/signup HTTP/1.1
+Host: entrydsm.hs.kr
+Content-Type: application/json
+{
+	"email": "by09115@dsm.hs.kr",
+	"password": "thisIsTrulyPassword"
+}
+```
+> Response will be like this:
 
-> To authorize, use this code:
+```
+HTTP/1.1 202 Accpeted
+Content-Type: text/plain; charset=utf-8
 
-```ruby
-require 'kittn'
+HTTP/1.1 400 Bad Request
+Content-Type: text/plain; charset=utf-8
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
+HTTP/1.1 409 Conflict
+Content-Type: text/plain; charset=utf-8
 ```
 
-```python
-import kittn
+임시 유저를 생성하고 `verification_code`를 만들어 해당 코드를 포함한 링크를 이메일로 전송합니다. 
 
-api = kittn.authorize('meowmeowmeow')
-api.meow()
-```
+### Permisions
+|||
+|--------------------|-------|
+| public             | true  |
+| inter-service call | false |
 
-```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
-```
+### Attributes
 
-```javascript
-const kittn = require("kittn");
+| name     | type | description                                 | required |
+|----------|------|---------------------------------------------|----------|
+| email    | str  | user email                                  |O         |
+| password | str  | password                                    |O         |
 
-let api = kittn.authorize("meowmeowmeow");
-```
-
-> Make sure to replace `meowmeowmeow` with your API key.
-
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
-
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
-
-`Authorization: meowmeowmeow`
 
 <aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+201 성공이 아니라 202 수락됨이 응답으로 옵니다
 </aside>
 
-# Kittens
+#
 
-## Get All Kittens
+# /signup/verify
 
-```ruby
-require 'kittn'
+## GET
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
+```http
+GET /api/v1/signup/verify?code={{code}} HTTP/1.1
+Host: entrydsm.hs.kr
+User-Agent: your-client/1.0
 ```
 
-```python
-import kittn
+> Response will be like this:
 
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
+```
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+
+HTTP/1.1 400 Bad Request
+Content-Type: text/plain; charset=utf-8
 ```
 
-```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
-```
+이메일 확인을 위해 발급받은 토큰을 검증할 때 사용합니다. 이 URL이 이메일에 `/verify?code={{token}}`형태로 삽입되어 보내집니다. 
+코드가 유효하다면 200, 유효하지 않다면 400이 반환됩니다
 
-```javascript
-const kittn = require("kittn");
+### Permisions
+|||
+|--------------------|-------|
+| public             | true  |
+| inter-service call | false |
 
-let api = kittn.authorize("meowmeowmeow");
-let kittens = api.kittens.get();
-```
+# /login
+## POST
 
-> The above command returns JSON structured like this:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
-]
-```
-
-This endpoint retrieves all kittens.
-
-### HTTP Request
-
-`GET http://example.com/api/kittens`
-
-### Query Parameters
-
-| Parameter    | Default | Description                                                                      |
-| ------------ | ------- | -------------------------------------------------------------------------------- |
-| include_cats | false   | If set to true, the result will also include cats.                               |
-| available    | true    | If set to false, the result will include kittens that have already been adopted. |
-
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
-
-## Get a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require("kittn");
-
-let api = kittn.authorize("meowmeowmeow");
-let max = api.kittens.get(2);
-```
-
-> The above command returns JSON structured like this:
-
-```json
+```http
+POST /api/v1/login HTTP/1.1
+Host: entrydsm.hs.kr
+Content-Type: application/json
 {
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
+	"email": "by09115@dsm.hs.kr",
+	"password": "thisIsTrulyPassword"
 }
 ```
 
-This endpoint retrieves a specific kitten.
+> Response will be like this:
 
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
-
-### HTTP Request
-
-`GET http://example.com/kittens/<ID>`
-
-### URL Parameters
-
-| Parameter | Description                      |
-| --------- | -------------------------------- |
-| ID        | The ID of the kitten to retrieve |
-
-## Delete a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.delete(2)
 ```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.delete(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2"
-  -X DELETE
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require("kittn");
-
-let api = kittn.authorize("meowmeowmeow");
-let max = api.kittens.delete(2);
-```
-
-> The above command returns JSON structured like this:
-
-```json
+HTTP/1.1 201 Created
+Content-Type: text/plain; charset=utf-8
 {
-  "id": 2,
-  "deleted": ":("
+  access: {{access token}},
+  refresh: {{refresh token}}
+}
+
+HTTP/1.1 403 Bad Request
+Content-Type: text/plain; charset=utf-8
+```
+
+신규 토큰을 발급합니다.
+
+### Permisions
+|||
+|--------------------|-------|
+| public             | true  |
+| inter-service call | false |
+
+### Attributes
+
+| name     | type | description                                 | required |
+|----------|------|---------------------------------------------|----------|
+| email    | str  | user email                                  |O         |
+| password | str  | password                                    |O         |
+
+# /refresh
+## PATCH
+
+```http
+PATCH /api/v1/refresh HTTP/1.1
+Host: entrydsm.hs.kr
+User-Agent: your-client/1.0
+X-Refresh-Token: Bearer {{token}}
+```
+
+> Response will be like this:
+
+```
+HTTP/1.1 201 Created
+Content-Type: text/plain; charset=utf-8
+{
+  access: {{access token}}
+}
+
+HTTP/1.1 403 Bad Request
+Content-Type: text/plain; charset=utf-8
+```
+
+토큰을 재발급합니다.
+
+### Permisions
+|||
+|--------------------|-------|
+| public             | true  |
+| inter-service call | false |
+
+### Header
+
+| Key             | Value            | Required | Description   |
+| --------------- | ---------------- | -------- | ------------- |
+| X-Refresh-Token | Bearer {{token}} | True     | 리프레시 토큰     |
+
+# /logout
+## DELETE
+
+```http
+DELETE /api/v1/logout HTTP/1.1
+Host: entrydsm.hs.kr
+User-Agent: your-client/1.0
+X-Refresh-Token: Bearer {{token}}
+```
+
+> Response will be like this:
+
+```
+HTTP/1.1 202 Accepted
+Content-Type: text/plain; charset=utf-8
+
+HTTP/1.1 400 Bad Request
+Content-Type: text/plain; charset=utf-8
+```
+
+기존에 사용중이던 토큰을 파기합니다.
+
+### Header
+
+| Key             | Value            | Required | Description   |
+| --------------- | ---------------- | -------- | ------------- |
+| X-Refresh-Token | Bearer {{token}} | True     | 리프레시 토큰     |
+
+
+# /service/token
+## POST
+
+```http
+POST /api/v1/token HTTP/1.1
+Host: entrydsm.hs.kr
+Content-Type: application/json
+{
+	"email": "by09115@dsm.hs.kr",
+	"password": "thisIsTrulyPassword"
 }
 ```
 
-This endpoint deletes a specific kitten.
+신규 토큰을 발급합니다.
 
-### HTTP Request
+### Attributes
 
-`DELETE http://example.com/kittens/<ID>`
+| name     | type | description                                 | required |
+|----------|------|---------------------------------------------|----------|
+| email    | str  | user email                                  |O         |
+| password | str  | password                                    |O         |
 
-### URL Parameters
+## DELETE
 
-| Parameter | Description                    |
-| --------- | ------------------------------ |
-| ID        | The ID of the kitten to delete |
+```http
+DELETE /api/v1/token HTTP/1.1
+Host: entrydsm.hs.kr
+User-Agent: your-client/1.0
+Authorization: Bearer {{token}}
+```
+
+기존에 사용중이던 토큰을 파기합니다.
+
+### Header
+
+| Key           | Value            | Required | Description |
+| ------------- | ---------------- | -------- | ----------- |
+| Authorization | Bearer {{token}} | True     | JWT 토큰     |
+
+<aside class="warning">
+헤더에 JWT를 담아 보낼 때에는 <code>Value</code>의 기본 양식을 준수해야 합니다.
+</aside>
+
+## PATCH
+
+```http
+PATCH /api/v1/token HTTP/1.1
+Host: entrydsm.hs.kr
+User-Agent: your-client/1.0
+Authorization: Bearer {{token}}
+```
+
+토큰을 재발급합니다.
+
+### Header
+
+| Key           | Value            | Required | Description   |
+| ------------- | ---------------- | -------- | ------------- |
+| Authorization | Bearer {{token}} | True     | 리프레시 토큰     |
