@@ -1,6 +1,6 @@
 from os import environ
 
-SERVICE_NAME = environ.get("SERVICE_NAME", "Chanel")
+SERVICE_NAME = environ.get("SERVICE_NAME", "chanel")
 RUN_ENV = environ.get("RUN_ENV")
 
 VAULT_ADDRESS = environ.get("VAULT_ADDRESS")
