@@ -29,5 +29,10 @@ class RedisConnection:
         await cls.redis.set(key, dumped_value)
 
     @classmethod
+    async def get(cls, key: str) -> Dict[str, Any]:
+        temp_value = await cls.redis.get(key)
+        return json.loads(temp_value) if temp_value else None
+
+    @classmethod
     async def delete(cls, key: str) -> None:
         await cls.redis.delete(key)
