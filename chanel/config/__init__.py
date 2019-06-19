@@ -1,6 +1,5 @@
 from os import environ
 
-
 SERVICE_NAME = environ.get("SERVICE_NAME", "chanel")
 RUN_ENV = environ.get("RUN_ENV")
 
