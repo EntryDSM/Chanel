@@ -1,4 +1,5 @@
 from sanic import Sanic
+from sanic_jwt import Initialize
 
 from chanel.config import SERVICE_NAME, LOGO
 from chanel.config.vault import VaultClient
@@ -8,6 +9,7 @@ from chanel.controller import signup_bp, user_auth_bp, admin_auth_bp, password_b
 
 def create_app() -> Sanic:
     _app = Sanic(SERVICE_NAME)
+    Initialize(_app, authenticate=lambda: True)
     _app.config.LOGO = LOGO
     _app.register_listener(initialize, "before_server_start")
 

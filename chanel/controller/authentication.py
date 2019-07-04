@@ -5,7 +5,8 @@ from sanic.views import HTTPMethodView
 
 class CreateUserToken(HTTPMethodView):
     async def post(self, request):
-        pass
+        user_info = request.json['email']
+        password = request.json['password']
 
 
 class RefreshUserToken(HTTPMethodView):

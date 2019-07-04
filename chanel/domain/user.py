@@ -1,5 +1,4 @@
 from secrets import token_urlsafe
-from requests import request
 
 from chanel.config import SERVICE_NAME
 # from chanel.domain import HERMES_ADDRESS
@@ -25,4 +24,7 @@ class TempUser:
                 "password": self.password
             }
         )
+        self.send_email()
 
+    def send_email(self):
+        ...
