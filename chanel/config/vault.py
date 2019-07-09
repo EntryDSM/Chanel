@@ -24,6 +24,14 @@ class VaultClient:
             raise e
 
     @property
+    def get_jwt_secret_key(self):
+        try:
+            return self.client.read(f"service-secret/prod/jwt-key")["data"]["key"]
+        except Exception as e:
+            raise e
+
+
+    @property
     def redis_credential(self):
         try:
             if not self._redis_credential:

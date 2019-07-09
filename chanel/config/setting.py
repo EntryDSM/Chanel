@@ -5,8 +5,8 @@ class Setting:
     def __init__(self, vault_client: VaultClient):
         self.vault_client = vault_client
 
-    def __getattr__(self, item):
-        return self.vault_client.__getattr__(item)
+    def __getattr__(self, item, pwd=None):
+        return self.vault_client.__getattr__(item) if not pwd else self.vault_client.__getattr__(item, pwd)
 
     @property
     def redis_connection_info(self):
