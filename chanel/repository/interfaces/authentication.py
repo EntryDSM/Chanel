@@ -10,5 +10,5 @@ class ApplicantAuthenticationRepositoryInterface(ABC):
 
 class AdminAuthenticationRepositoryInterface(ABC):
     @abstractmethod
-    async def post(self, email: str, password: str) -> None:
+    async def post(self, admin_id: str, password: str) -> None:
         ...
