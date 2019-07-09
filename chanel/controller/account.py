@@ -1,9 +1,12 @@
 from sanic.exceptions import abort
 from sanic.response import json
 from sanic.views import HTTPMethodView
+from sanic.blueprints import Blueprint
 
 from chanel.domain.user import TempUser
 from chanel.exceptions.http import Conflict
+
+signup_bp = Blueprint("signup", url_prefix="/signup")
 
 
 class SignUp(HTTPMethodView):
@@ -20,3 +23,7 @@ class SignUpVerify(HTTPMethodView):
         code = request.args['code'][0]
         print(code)
         return json({"code": code}, 200)
+
+
+signup_bp.add_route(SignUp.as_view(), "/")
+signup_bp.add_route(SignUpVerify.as_view(), "/verify")
