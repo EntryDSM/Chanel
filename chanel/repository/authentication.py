@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 from chanel.repository.interfaces.authentication import ApplicantAuthenticationRepositoryInterface, \
     AdminAuthenticationRepositoryInterface
@@ -9,9 +9,9 @@ GET_ADMIN_AUTH_API_URL = '/admin/{0}/authorization'
 
 
 class ApplicantAuthenticationRepository(ApplicantAuthenticationRepositoryInterface):
-    def __init__(self, host: str, client: HTTPClient):
+    def __init__(self, host: str, client: Type[HTTPClient] = HTTPClient):
         self.host: str = host + GET_APPLICANT_AUTH_API_URL
-        self.client: HTTPClient = client
+        self.client = client
 
     async def post(self, email: str, password: str) -> Dict[str, Any]:
         data = {"password": password}

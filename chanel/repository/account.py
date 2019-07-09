@@ -7,9 +7,9 @@ GET_ONE_APPLICANT_API_URL = '/applicant/{0}'
 
 
 class ApplicantEmailVerificationRepository(ApplicantEmailVerificationRepositoryInterface):
-    def __init__(self, host: str, client: HTTPClient = HTTPClient):
+    def __init__(self, host: str, client: Type[HTTPClient] = HTTPClient):
         self.host: str = host + GET_ONE_APPLICANT_API_URL
-        self.client: HTTPClient = client
+        self.client = client
 
     async def get_one(self, email: str) -> Dict[str, Any]:
         return await self.client.get(self.host.format(email))
