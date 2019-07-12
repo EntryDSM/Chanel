@@ -1,4 +1,4 @@
-from aiohttp import ClientSession, TCPConnector, ClientTimeout
+from aiohttp import ClientSession, TCPConnector, ClientTimeout, ClientResponse
 from typing import Any, Dict, List
 
 
@@ -43,11 +43,11 @@ class HTTPClient:
             return await response.json()
 
     @classmethod
-    async def post(cls, url: str, headers: dict = None, **kwargs) -> Dict[str, Any]:
+    async def post(cls, url: str, headers: dict = None, **kwargs) -> ClientResponse:
         async with cls._session.post(
             url=url,
             headers=headers,
             param=kwargs,
             raise_for_status=True,
         ) as response:
-            return await response.json()
+            return response
