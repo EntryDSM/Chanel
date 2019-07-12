@@ -1,18 +1,32 @@
+import uuid
+
+from sanic.response import HTTPResponse, json
 from sanic.views import HTTPMethodView
 from sanic.blueprints import Blueprint
 from sanic_jwt_extended import jwt_required, create_access_token, create_refresh_token
+
+from chanel.exceptions.http import Forbidden
+from chanel.config import SERVICE_NAME
+from chanel.config.setting import SETTINGS
+from chanel.service.authentication import ApplicantAuthenticationService
+from chanel.repository.account import ApplicantEmailVerificationRepository
+from chanel.repository.authentication import ApplicantAuthenticationRepository, AdminAuthenticationRepository
+from chanel.repository.connections import RedisConnection
+from chanel.repository.password import PasswordResetVerificationRepository
 
 user_auth_bp = Blueprint("user_auth")
 admin_auth_bp = Blueprint("admin_auth", url_prefix="/admin")
 
 
 class CreateUserToken(HTTPMethodView):
-    async def post(self, request):
-        user_info = request.json['email']
+    repository = ApplicantAuthenticationRepository(SETTINGS.hermes_host)
+    service = ApplicantAuthenticationService(repository)
+
+    async def post(self, request) -> HTTPResponse:
+        email = request.json['email']
         password = request.json['password']
-        if user_info and password and
-            token = create_access_token(
-                app=request.app, identity=user_info, user_claims=)
+        response = await self.service.create_token(request, email, password)
+        return response
 
 
 class RefreshUserToken(HTTPMethodView):
