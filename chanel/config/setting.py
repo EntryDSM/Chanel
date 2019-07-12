@@ -1,3 +1,4 @@
+from chanel.config import RUN_ENV
 from chanel.config.vault import VaultClient
 
 
@@ -6,7 +7,9 @@ class Setting:
         self.vault_client = vault_client
 
     def __getattr__(self, item, pwd=None):
-        return self.vault_client.__getattr__(item) if not pwd else self.vault_client.__getattr__(item, pwd)
+        return (self.vault_client.__getattr__(item)
+                if not pwd
+                else self.vault_client.__getattr__(item, pwd))
 
     @property
     def redis_connection_info(self):
@@ -17,5 +20,12 @@ class Setting:
             "maxsize": 10,
         }
 
+    @property
+    def hermes_host(self):
+        # TODO Hermes Host 알아내기
+        return "Hermes"
 
-settings = Setting(VaultClient())
+    DEBUG = False if RUN_ENV == "prod" else True
+
+
+SETTINGS = Setting(VaultClient())
