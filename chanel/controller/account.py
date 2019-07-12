@@ -14,7 +14,7 @@ class SignUp(HTTPMethodView):
         user = TempUser(request.json["email"], request.json["password"])
         if user.is_conflict_account():
             raise Conflict
-        user.build()
+        await user.build()
         return json({"status": "temporary user has created."}, 202)
 
 

@@ -16,15 +16,15 @@ class TempUser:
     #     response = request(url=url, method="GET").status_code
     #     return False if response == 404 else True
 
-    def build(self):
-        RedisConnection.set(
-            key=f"{SERVICE_NAME}:{self.code}",
+    async def build(self):
+        await RedisConnection.set(
+            key=f"{SERVICE_NAME}:tempUser:{self.code}",
             value={
                 "email": self.email,
                 "password": self.password
             }
         )
-        self.send_email()
+        await self.send_email()
 
-    def send_email(self):
+    async def send_email(self):
         ...
