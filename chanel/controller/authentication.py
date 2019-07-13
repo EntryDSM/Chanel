@@ -18,9 +18,12 @@ user_auth_bp = Blueprint("user_auth")
 admin_auth_bp = Blueprint("admin_auth", url_prefix="/admin")
 
 
-class CreateUserToken(HTTPMethodView):
+class ApplicantAuthenticationView(HTTPMethodView):
     repository = ApplicantAuthenticationRepository(SETTINGS.hermes_host)
     service = ApplicantAuthenticationService(repository)
+
+
+class CreateUserToken(ApplicantAuthenticationView):
 
     async def post(self, request) -> HTTPResponse:
         email = request.json['email']
@@ -29,12 +32,12 @@ class CreateUserToken(HTTPMethodView):
         return response
 
 
-class RefreshUserToken(HTTPMethodView):
+class RefreshUserToken(ApplicantAuthenticationView):
     async def patch(self, request):
-        ...
+        refresh = request.headers["X-Refresh-Token"]
 
 
-class DeleteUserToken(HTTPMethodView):
+class DeleteUserToken(ApplicantAuthenticationView):
     async def delete(self, request):
         ...
 

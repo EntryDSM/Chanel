@@ -24,9 +24,9 @@ class RedisConnection:
         cls.redis = None
 
     @classmethod
-    async def set(cls, key: str, value: Dict[str, Any]) -> None:
+    async def set(cls, key: str, value, expire: int = None) -> None:
         dumped_value = json.dumps(value)
-        await cls.redis.set(key, dumped_value)
+        await cls.redis.set(key=key, value=dumped_value, expire=expire)
 
     @classmethod
     async def get(cls, key: str) -> Dict[str, Any]:

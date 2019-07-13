@@ -1,3 +1,5 @@
+import datetime
+
 from sanic import Sanic
 from sanic_jwt_extended import JWTManager
 
@@ -14,6 +16,7 @@ def create_app() -> Sanic:
     _app.register_listener(initialize, "before_server_start")
 
     _app.config["JWT_SECRET_KEY"] = SETTINGS.vault_client.get_jwt_secret_key
+    _app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(days=1)
     _app.config["RBAC_ENABLE"] = True
     JWTManager(_app)
 

@@ -1,5 +1,4 @@
 from aiohttp import ClientSession, TCPConnector, ClientTimeout, ClientResponse
-from typing import Any, Dict, List
 
 
 class HTTPClient:
@@ -23,24 +22,24 @@ class HTTPClient:
         cls._session = None
 
     @classmethod
-    async def get(cls, url: str, headers: dict = None, **kwargs) -> Dict[str, Any]:
+    async def get(cls, url: str, headers: dict = None, **kwargs) -> ClientResponse:
         async with cls._session.get(
                 url=url,
                 headers=headers,
                 param=kwargs,
                 raise_for_status=True,
         ) as response:
-            return await response.json()
+            return response
 
     @classmethod
-    async def get_list(cls, url: str, headers: dict = None, **kwargs) -> List[Dict[str, Any]]:
+    async def get_list(cls, url: str, headers: dict = None, **kwargs) -> ClientResponse:
         async with cls._session.get(
                 url=url,
                 headers=headers,
                 param=kwargs,
                 raise_for_status=True,
         ) as response:
-            return await response.json()
+            return response
 
     @classmethod
     async def post(cls, url: str, headers: dict = None, **kwargs) -> ClientResponse:

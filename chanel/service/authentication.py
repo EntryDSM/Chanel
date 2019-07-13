@@ -8,6 +8,7 @@ from chanel.repository.authentication import ApplicantAuthenticationRepository
 from chanel.repository.connections import RedisConnection
 from chanel.exceptions.http import BadRequest, Forbidden
 
+SECONDS_FROM_30DAYS = 60 ** 2 * 24 * 30
 
 class ApplicantAuthenticationService:
     def __init__(self, repository: ApplicantAuthenticationRepository):
@@ -17,10 +18,22 @@ class ApplicantAuthenticationService:
         user_auth = await self.repository.post(email, password)
         if user_auth.status == 201:
             access = create_access_token(app=request.app, identity=email, role="APPLICANT")
-            refresh = create_refresh_token(app=request.app, identity=str(uuid.uuid4()))
-            await RedisConnection.set(f"{SERVICE_NAME}:user:{email}", {"refresh_token": refresh})
+            refresh = str(uuid.uuid4())
+            await RedisConnection.set(
+                key=f"{SERVICE_NAME}:user:{email}",
+                value={"refresh": refresh},
+                expire=SECONDS_FROM_30DAYS
+            )
+            await RedisConnection.set(
+                key=str({"refresh": refresh}),
+                value=f"{SERVICE_NAME}:user:{email}",
+                expire=SECONDS_FROM_30DAYS
+            )
             return json({"access_token": access, "refresh_token": refresh}, status=201)
         elif user_auth.status == 400:
             raise BadRequest
         elif user_auth.status == 403:
             raise Forbidden
+
+    def refresh_token(self, refresh):
+        if RedisConnection.get(f"{SERVICE_NAME}:user:{}")
