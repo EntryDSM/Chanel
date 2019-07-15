@@ -1,7 +1,7 @@
 # chanelApplication
 
 from chanel import create_app
-from chanel.config.vault import VaultClient
+from chanel.configq import VaultClient
 
 if __name__ == "__main__":
     VaultClient.initialize()
