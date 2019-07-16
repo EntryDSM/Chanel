@@ -12,7 +12,7 @@ from chanel.password import password_bp
 from chanel.setting import LOGO, SETTINGS, initialize
 from chanel.signup import signup_bp
 
-LOG_PATH = os.path.dirname(__file__).replace("/service", "").replace("/currentdir", "")
+LOG_PATH = os.path.dirname(__file__).replace("/chanel", "")
 
 
 def create_app() -> Sanic:
