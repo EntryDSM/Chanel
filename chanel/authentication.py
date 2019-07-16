@@ -20,7 +20,6 @@ admin_auth_bp = Blueprint("admin_auth", url_prefix="/admin")
 
 
 class CreateUserToken(HTTPMethodView):
-
     async def post(self, request: Request) -> HTTPResponse:
         email = request.json["email"]
         password = generate_password_hash(request.json["password"])

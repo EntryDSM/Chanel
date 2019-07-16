@@ -16,7 +16,6 @@ password_bp = Blueprint("reset_password", url_prefix="/password")
 
 
 class ResetUserPassword(HTTPMethodView):
-
     async def get(self, request):
         verify_code = request.args["verify"][0]
         verify_code_has_saved = await RedisConnection.get(str({"verify": verify_code}))
@@ -51,5 +50,6 @@ class ResetUserPassword(HTTPMethodView):
                 raise BadRequest
         elif not verify_code_has_saved:
             raise Unauthorized
+
 
 password_bp.add_route(ResetUserPassword.as_view(), "/reset")
