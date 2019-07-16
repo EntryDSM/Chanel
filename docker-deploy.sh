@@ -15,7 +15,7 @@ elif [[ "$1" == "master" ]];then
 
     docker build -t registry.entrydsm.hs.kr/chanel:${version} .
 
-    docker tag registry.entrydsm.hs.kr/chanel:${version} registry.entrydsm.hs.kr/hermes:latest
+    docker tag registry.entrydsm.hs.kr/chanel:${version} registry.entrydsm.hs.kr/chanel:latest
 
     docker push registry.entrydsm.hs.kr/chanel:${version}
     docker push registry.entrydsm.hs.kr/chanel:latest
