@@ -1,7 +1,8 @@
 import pytest
 from aioredis.errors import RedisError
 
-from chanel.repository.connections import RedisConnection
+from chanel.redis import RedisConnection
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(

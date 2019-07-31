@@ -1,6 +1,6 @@
 import json, pytest
 
-from chanel import create_app
+from chanel.app import create_app
 
 
 @pytest.yield_fixture
