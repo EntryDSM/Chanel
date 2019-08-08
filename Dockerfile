@@ -6,7 +6,10 @@ ENV VAULT_ADDRESS $VAULT_ADDRESS
 ENV RUN_ENV prod
 ENV SERVICE_NAME chanel
 
+COPY . .
 WORKDIR .
+
 RUN pip install -r requirements.txt
-ENTRYPOINT ["python", "-m"]
+ENTRYPOINT ["python"]
+CMD ["-m", "chanel"]
 EXPOSE 80
