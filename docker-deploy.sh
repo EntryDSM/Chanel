@@ -2,7 +2,7 @@
 
 version='python -c "import chanel; print(chanel.__version__)"'
 
-echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin regisry.entrydsm.hs.kr
+echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin registry.entrydsm.hs.kr
 
 if [[ "$1" == "dev" ]];then
     echo "Docker build on dev started"
