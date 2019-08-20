@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-version='python -c "import chanel; print(chanel.__version__)"'
+# shellcheck disable=SC2089
+version="python -c 'import chanel; print(chanel.__version__)'"
 
 echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin registry.entrydsm.hs.kr
 
