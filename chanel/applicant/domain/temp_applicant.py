@@ -5,7 +5,7 @@ import ujson
 from chanel.common.entity import BaseEntityClass
 
 
-@dataclass(init=True)
+@dataclass
 class TempApplicant(BaseEntityClass):
     email: str
 
