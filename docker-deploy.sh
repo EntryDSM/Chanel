@@ -20,6 +20,8 @@ elif [[ "$1" == "master" ]];then
     docker push registry.entrydsm.hs.kr/chanel:${version}
     docker push registry.entrydsm.hs.kr/chanel:latest
 
+    echo "Docker image pushed"
+
 fi
 
-exit
+exit 0
