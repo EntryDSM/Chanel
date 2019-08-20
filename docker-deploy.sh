@@ -10,6 +10,10 @@ if [[ "$1" == "dev" ]];then
     docker build -t registry.entrydsm.hs.kr/chanel:dev .
 
     docker push registry.entrydsm.hs.kr/chanel:dev
+
+    echo "Docker image pushed"
+
+
 elif [[ "$1" == "master" ]];then
     echo "Docker build on master started"
 
