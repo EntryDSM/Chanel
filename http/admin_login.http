@@ -1,0 +1,9 @@
+POST http://localhost:80/api/v1/admin/login
+Content-Type: application/json
+
+{
+  "email": "by09115@outlook.kr",
+  "password": "p@ssword"
+}
+
+###
