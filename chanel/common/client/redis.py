@@ -30,8 +30,8 @@ class RedisConnection:
 
     @classmethod
     async def set_pair(cls, key: str, value: str, expire: int = None) -> None:
-        await cls.set(key=key, value=dumps(value), expire=expire)
-        await cls.set(key=dumps(value), value=key, expire=expire)
+        await cls.redis.set(key=key, value=dumps(value), expire=expire)
+        await cls.redis.set(key=dumps(value), value=key, expire=expire)
 
     @classmethod
     async def get(cls, key: str):
@@ -44,6 +44,6 @@ class RedisConnection:
 
     @classmethod
     async def delete_pair(cls, key: str) -> None:
-        temp = await cls.get(key)
-        await cls.delete(temp)
-        await cls.delete(key)
+        temp = await cls.redis.get(key)
+        await cls.redis.delete(temp)
+        await cls.redis.delete(key)

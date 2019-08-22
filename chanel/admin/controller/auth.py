@@ -34,7 +34,7 @@ class RefreshAdminToken(HTTPMethodView):
 
 
 class DestroyAdminToken(HTTPMethodView):
-    repository: AdminCacheRepository(RedisConnection)
+    repository: AdminCacheRepository = AdminCacheRepository(RedisConnection)
 
     async def post(self, request: Request) -> HTTPResponse:
         refresh = str(request.headers.get("X-Refresh-Token")).split("Bearer ")[1]
