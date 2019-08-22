@@ -7,6 +7,7 @@ signup_bp: Blueprint = Blueprint("applicant_signup")
 
 
 class CreateApplicantTempAccount(HTTPMethodView):
+
     def post(self, request: Request) -> HTTPResponse:
         ...
 

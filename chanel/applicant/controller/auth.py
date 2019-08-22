@@ -6,6 +6,7 @@ auth_bp: Blueprint = Blueprint("applicant_auth")
 
 
 class CreateApplicantToken(HTTPMethodView):
+
     def post(self, request: Request):
         ...
 

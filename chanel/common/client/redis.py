@@ -2,20 +2,25 @@ from ujson import dumps, loads
 from aioredis import Redis, create_redis_pool
 
 
-class RedisClient:
+class RedisConnection:
     redis: Redis = None
 
     @classmethod
     async def initialize(cls, connection_info) -> Redis:
-        if not cls.redis:
-            cls.redis = await create_redis_pool(**connection_info)
+
+        if cls.redis and not cls.redis.closed:
+            return cls.redis
+
+        cls.redis = await create_redis_pool(**connection_info)
 
         return cls.redis
 
     @classmethod
     async def destroy(cls) -> None:
-        cls.redis.close()
-        await cls.redis.wait_closed()
+
+        if cls.redis:
+            cls.redis.close()
+            await cls.redis.wait_closed()
 
         cls.redis = None
 
