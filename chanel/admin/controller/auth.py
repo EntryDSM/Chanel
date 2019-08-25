@@ -1,55 +1,51 @@
-import ujson
-import sanic.response
-
 from sanic import Blueprint
-from sanic.request import Request
-from sanic.response import json, HTTPResponse
 from sanic.views import HTTPMethodView
 
-from admin.domain.admin import AdminCacheRepository, Admin
-from common.client.redis import RedisConnection
-from common.exception import Forbidden, BadRequest
+from chanel.admin.domain.admin import AdminCacheRepository
+from chanel.admin.service.admin import AdminService
+from chanel.common import json_verify, header_verify
+from chanel.common.client.http import HTTPClient
+from chanel.common.client.redis import RedisConnection
+from chanel.common.external_sevice import ExternalServiceRepository
 
 auth_bp: Blueprint = Blueprint("admin_auth")
 
 
 class CreateAdminToken(HTTPMethodView):
-    repository: AdminCacheRepository = AdminCacheRepository
+    decorators = [json_verify(dict(admin_id=str, password=str))]
 
-    async def post(self, request: Request):
-        email = request.json.get("email")
-        password = request.json.get("password")
+    external_service_repository = ExternalServiceRepository(HTTPClient)
+    service = AdminService(external_service_repository, None)
 
-        ...
+    async def post(self, request):
+        response = await self.service.login(request)
+
+        return response
 
 
 class RefreshAdminToken(HTTPMethodView):
-    repository: AdminCacheRepository = AdminCacheRepository
+    decorators = [header_verify(["X-Refresh-Token"])]
 
-    async def post(self, request: Request):
-        refresh = request.headers.get("X-Refresh-Token").split("Bearer ")[1]
-        saved_refresh = self.repository.get_by_refresh(refresh)
+    cache_repository: AdminCacheRepository = AdminCacheRepository(RedisConnection)
+    external_service_repository = ExternalServiceRepository(HTTPClient)
+    service = AdminService(external_service_repository, cache_repository)
 
-        ...
+    async def post(self, request):
+        response = await self.service.refresh(request)
+
+        return response
 
 
 class DestroyAdminToken(HTTPMethodView):
-    repository: AdminCacheRepository = AdminCacheRepository(RedisConnection)
+    decorators = [header_verify(["X-Verify-Token"])]
 
-    async def post(self, request: Request) -> HTTPResponse:
-        refresh = str(request.headers.get("X-Refresh-Token")).split("Bearer ")[1]
-        saved = await self.repository.get_by_refresh(refresh)
+    cache_repository: AdminCacheRepository = AdminCacheRepository(RedisConnection)
+    service = AdminService(None, cache_repository)
 
-        if refresh and saved:
-            await self.repository.delete(Admin(saved.key, saved.value))
+    async def delete(self, request):
+        response = await self.service.logout(request)
 
-            return json({"msg": "logout success"}, 202)
-
-        elif not saved:
-            raise Forbidden
-
-        else:
-            raise BadRequest
+        return response
 
 
 auth_bp.add_route(CreateAdminToken.as_view(), "/login")
