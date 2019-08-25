@@ -1,10 +1,8 @@
 from dataclasses import dataclass
 from typing import Type
 
-import ujson
-
-from chanel.common.entity import BaseEntityClass
 from common.client.redis import RedisConnection
+from common.domain.entity import BaseEntityClass
 
 
 @dataclass
@@ -14,33 +12,36 @@ class Admin(BaseEntityClass):
 
     @property
     def key(self) -> str:
-        return f"chanel:admin:{self.admin_id}"
+        return f"chanel:admin:refresh:{self.admin_id}"
 
     @property
     def value(self) -> str:
-        return ujson.dumps(
-            {"refresh": self.refresh_token}
+        return f"chanel:admin:refresh:{self.refresh_token}"
+
+    @classmethod
+    def data_to_entity(cls, admin_id: str, refresh_token: str):
+        return Admin(
+            admin_id.split(":")[3],
+            refresh_token.split(":")[3]
         )
 
 
 class AdminCacheRepository:
-
     def __init__(self, client: Type[RedisConnection]):
         self.client = client
 
     async def save(self, admin: Admin, expire: int = None) -> None:
-        await self.client.set_pair(admin.key, admin.value, expire)
+        await self.client.set(admin.key, admin.value, expire, pair=True)
 
     async def delete(self, admin: Admin) -> None:
-        await self.client.delete_pair(admin.key)
+        await self.client.delete(admin.key, pair=True)
 
     async def get_by_id(self, admin_id: str) -> Admin:
-        value = await self.client.get(f"chanel:admin:{admin_id}")
+        refresh = await self.client.get(f"chanel:admin:refresh:{admin_id}")
 
-        return Admin(admin_id, value) if value else None
+        return Admin.data_to_entity(admin_id, refresh) if refresh else None
 
     async def get_by_refresh(self, refresh: str) -> Admin:
-        key = ujson.dumps({"refresh": refresh})
-        admin_id = str(await self.client.get(key)).split(":")[2]
+        admin_id = await self.client.get(f"chanel:admin:refresh:{refresh}")
 
-        return Admin(admin_id, refresh) if admin_id else None
+        return Admin.data_to_entity(admin_id, refresh) if admin_id else None
