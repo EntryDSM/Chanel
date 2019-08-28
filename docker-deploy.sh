@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-version='python -c "import chanel; print(chanel.__version__)"'
+version=`python -c "import chanel; print(chanel.__version__)"`
 
 echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin registry.entrydsm.hs.kr
 
@@ -10,6 +10,10 @@ if [[ "$1" == "dev" ]];then
     docker build -t registry.entrydsm.hs.kr/chanel:dev .
 
     docker push registry.entrydsm.hs.kr/chanel:dev
+
+    echo "Docker image pushed"
+
+
 elif [[ "$1" == "master" ]];then
     echo "Docker build on master started"
 
@@ -20,6 +24,8 @@ elif [[ "$1" == "master" ]];then
     docker push registry.entrydsm.hs.kr/chanel:${version}
     docker push registry.entrydsm.hs.kr/chanel:latest
 
+    echo "Docker image pushed"
+
 fi
 
-exit
+exit 0

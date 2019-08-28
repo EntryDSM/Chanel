@@ -7,6 +7,7 @@ password_bp: Blueprint = Blueprint("applicant_password", url_prefix="/password")
 
 
 class ResetApplicantPassword(HTTPMethodView):
+
     def get(self, request: Request) -> HTTPResponse:
         ...
 

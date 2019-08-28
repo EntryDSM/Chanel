@@ -45,6 +45,18 @@ class VaultClient:
         except Exception as e:
             raise e
 
+    @property
+    def jwt_secret_key(self):
+        return self.vault_client.read(f"/service-secret/{RUN_ENV}/jwt-key")["data"]["key"]
+
+    @property
+    def jwt_access_expire(self):
+        return self.vault_client.read(f"/service-secret/{RUN_ENV}/jwt-key")["data"]["access_expire"]
+
+    @property
+    def jwt_refresh_expire(self):
+        return self.vault_client.read(f"/service-secret/{RUN_ENV}/jwt-key")["data"]["refresh_expire"]
+
 
 class Setting:
     vault_client: VaultClient = None
@@ -63,6 +75,18 @@ class Setting:
             "minsize": 5,
             "maxsize": 10
         }
+
+    @property
+    def jwt_secret_key(self):
+        return self.vault_client.jwt_secret_key
+
+    @property
+    def jwt_access_expire(self):
+        return self.vault_client.jwt_access_expire
+
+    @property
+    def jwt_refresh_expire(self):
+        return self.vault_client.jwt_refresh_expire
 
     DEBUG = False if RUN_ENV == "prod" else True
 

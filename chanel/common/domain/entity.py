@@ -1,7 +1,5 @@
 from abc import abstractmethod
 
-import ujson
-
 from dataclasses import dataclass
 
 

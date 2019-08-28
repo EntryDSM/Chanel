@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import ujson
 
-from chanel.common.entity import BaseEntityClass
+from chanel.common.domain.entity import BaseEntityClass
 
 
 @dataclass

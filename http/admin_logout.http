@@ -1,0 +1,10 @@
+POST http://localhost:80/api/v1/admin/logout
+Content-Type: application/json
+X-Refresh-Token: Bearer adiwne
+
+{
+  "email": "by09115@outlook.kr",
+  "password": "p@ssword"
+}
+
+###

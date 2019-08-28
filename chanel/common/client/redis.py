@@ -1,44 +1,52 @@
-from ujson import dumps, loads
 from aioredis import Redis, create_redis_pool
 
+from chanel.common.client.vault import settings
 
-class RedisClient:
-    redis: Redis = None
 
-    @classmethod
-    async def initialize(cls, connection_info) -> Redis:
-        if not cls.redis:
-            cls.redis = await create_redis_pool(**connection_info)
-
-        return cls.redis
+class RedisConnection:
+    _redis: Redis = None
 
     @classmethod
-    async def destroy(cls) -> None:
-        cls.redis.close()
-        await cls.redis.wait_closed()
-
-        cls.redis = None
+    async def init(cls, connection_info):
+        await cls.get_redis_pool(connection_info)
 
     @classmethod
-    async def set(cls, key: str, value: str, expire: int = None) -> None:
-        await cls.redis.set(key=key, value=dumps(value), expire=expire)
+    async def get_redis_pool(cls, connection_info) -> Redis:
+        if not cls._redis or cls._redis.closed:
+            cls._redis = await create_redis_pool(**connection_info)
+
+        return cls._redis
 
     @classmethod
-    async def set_pair(cls, key: str, value: str, expire: int = None) -> None:
-        await cls.set(key=key, value=dumps(value), expire=expire)
-        await cls.set(key=dumps(value), value=key, expire=expire)
+    async def destroy(cls):
+
+        if cls._redis:
+            cls._redis.close()
+            await cls._redis.wait_closed()
+
+        cls._redis = None
 
     @classmethod
     async def get(cls, key: str):
-        temp = await cls.redis.get(key)
-        return loads(temp) if temp else None
+        redis_pool = await cls.get_redis_pool(settings.redis_connection_info)
+        temp = await redis_pool.get(key)
+
+        return temp if temp else None
 
     @classmethod
-    async def delete(cls, key: str) -> None:
-        await cls.redis.delete(key)
+    async def set(cls, key: str, value: str, expire: int = None, pair: bool = None) -> None:
+        redis_pool = await cls.get_redis_pool(settings.redis_connection_info)
+        await redis_pool.set(key, value, expire=expire)
+
+        if pair:
+            await redis_pool.set(value, key, expire=expire)
 
     @classmethod
-    async def delete_pair(cls, key: str) -> None:
-        temp = await cls.get(key)
-        await cls.delete(temp)
-        await cls.delete(key)
+    async def delete(cls, key: str, pair: bool = None) -> None:
+        redis_pool = await cls.get_redis_pool(settings.redis_connection_info)
+
+        if pair:
+            temp = await redis_pool.get(key)
+            await redis_pool.delete(temp)
+
+        await redis_pool.delete(key)
