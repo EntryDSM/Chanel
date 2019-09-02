@@ -2,12 +2,14 @@ import re
 
 from sanic import Sanic
 from sanic.log import logger
-from sendgrid import SendGridAPIClient, ApiKeyIncludedException
+from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from python_http_client.exceptions import BadRequestsError, UnauthorizedError
 
+from chanel.common.client.vault import settings
 
-def send_email(to_email: str, title: str, content: str, app: Sanic):
+
+def send_email(to_email: str, title: str, content: str):
     message = Mail(
         from_email="entrydsm@dsm.hs.kr",
         to_emails=to_email,
@@ -16,7 +18,7 @@ def send_email(to_email: str, title: str, content: str, app: Sanic):
     )
 
     try:
-        client = SendGridAPIClient(app.config["SENDGRID_API_KEY"])
+        client = SendGridAPIClient(settings.sendgrid_api_key)
         response = client.send(message)
 
         return response.status_code
