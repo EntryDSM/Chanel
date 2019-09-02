@@ -2,6 +2,7 @@ from typing import Dict
 
 from hvac import Client
 from hvac.exceptions import InvalidRequest
+
 from sanic.log import logger
 
 from chanel.common.constant import GITHUB_TOKEN, RUN_ENV, VAULT_ADDRESS, SERVICE_NAME
@@ -27,6 +28,9 @@ class VaultClient:
 
     @classmethod
     def __getattr__(cls, item: str):
+        if not cls.vault_client:
+            cls.initialize()
+
         try:
             return cls.vault_client.read(f"/service-secret/{RUN_ENV}/{SERVICE_NAME}")["data"][item]
 
@@ -56,6 +60,10 @@ class VaultClient:
     @property
     def jwt_refresh_expire(self):
         return self.vault_client.read(f"/service-secret/{RUN_ENV}/jwt-key")["data"]["refresh_expire"]
+
+    @property
+    def sendgrid_api_key(self):
+        return self.vault_client.read(f"/secret/sendgrid")["data"]["API_KEY"]
 
 
 class Setting:
@@ -87,6 +95,10 @@ class Setting:
     @property
     def jwt_refresh_expire(self):
         return self.vault_client.jwt_refresh_expire
+
+    @property
+    def sendgrid_api_key(self):
+        return self.vault_client.sendgrid_api_key
 
     DEBUG = False if RUN_ENV == "prod" else True
 
