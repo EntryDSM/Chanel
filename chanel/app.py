@@ -25,7 +25,8 @@ def create_app():
     _app.blueprint(admin_blueprint)
 
     _app.config['JWT_SECRET_KEY'] = settings.jwt_secret_key
-    _app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=int(settings.jwt_access_expire))
+    _app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(int(settings.jwt_access_expire))
+    _app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(int(settings.jwt_refresh_expire))
     _app.config['RBAC_ENABLE'] = True
 
     JWTManager(_app)
