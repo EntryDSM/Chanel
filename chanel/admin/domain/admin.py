@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Type
 
-from common.client.redis import RedisConnection
-from common.domain.entity import BaseEntityClass
+from chanel.common.client.redis import RedisConnection
+from chanel.common.domain.entity import BaseEntityClass
 
 
 @dataclass
@@ -19,11 +19,14 @@ class Admin(BaseEntityClass):
         return f"chanel:admin:refresh:{self.refresh_token}"
 
     @classmethod
-    def data_to_entity(cls, admin_id: str, refresh_token: str):
-        return Admin(
-            admin_id.split(":")[3],
-            refresh_token.split(":")[3]
-        )
+    def data_to_entity(cls, admin_id, refresh_token):
+        if type(admin_id) == bytes:
+            admin_id = admin_id.split(b':')[3].decode()
+
+        if type(refresh_token) == bytes:
+            refresh_token = refresh_token.split(b':')[3].decode()
+
+        return Admin(admin_id, refresh_token)
 
 
 class AdminCacheRepository:

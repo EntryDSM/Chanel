@@ -1,7 +1,7 @@
 import pytest
 from aioredis.errors import RedisError
 
-from chanel.redis import RedisConnection
+from chanel.common.client.redis import RedisConnection
 
 
 @pytest.mark.asyncio
@@ -14,7 +14,7 @@ from chanel.redis import RedisConnection
         ("flush_all", {}),
     ],
 )
-async def test_cache_connection_interface(cache_method, param, cache_manage):
+async def test_cache_connection_interface(cache_method, param, redis_management):
     try:
         await getattr(RedisConnection, cache_method)(**param)
     except RedisError as e:

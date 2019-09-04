@@ -1,3 +1,5 @@
+import ujson
+
 from aiohttp import ClientSession, TCPConnector, ClientTimeout
 
 
@@ -29,24 +31,27 @@ class HTTPClient:
         session = await cls.get_session()
 
         async with session.get(
-            url, params=kwargs
+                url, **kwargs
         ) as response:
-            return dict(data=await response.json(), status=response.status)
+            data = await response.read()
+            return dict(data=ujson.loads(data), status=response.status)
 
     @classmethod
     async def post(cls, url: str, **kwargs) -> dict:
         session = await cls.get_session()
 
         async with session.post(
-            url, params=kwargs
+                url, **kwargs
         ) as response:
-            return dict(data=await response.json(), status=response.status)
+            data = await response.read()
+            return dict(data=ujson.loads(data), status=response.status)
 
     @classmethod
     async def patch(cls, url: str, **kwargs) -> dict:
         session = await cls.get_session()
 
         async with session.patch(
-            url, params=kwargs
+                url, **kwargs
         ) as response:
-            return dict(data=await response.json(), status=response.status)
+            data = await response.read()
+            return dict(data=ujson.loads(data), status=response.status)
