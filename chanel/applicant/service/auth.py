@@ -67,4 +67,4 @@ class ApplicantService:
 
         await self.cache_repo.delete(saved)
 
-        return json(dict(msg="logout succeed"), 202)
+        return json(dict(msg="logout succeed"), 200)

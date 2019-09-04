@@ -7,7 +7,7 @@ class RedisConnection:
     _redis: Redis = None
 
     @classmethod
-    async def init(cls, connection_info):
+    async def init(cls, connection_info) -> None:
         await cls.get_redis_pool(connection_info)
 
     @classmethod
@@ -18,13 +18,17 @@ class RedisConnection:
         return cls._redis
 
     @classmethod
-    async def destroy(cls):
+    async def destroy(cls) -> None:
 
         if cls._redis:
             cls._redis.close()
             await cls._redis.wait_closed()
 
         cls._redis = None
+
+    @classmethod
+    async def flush_all(cls) -> None:
+        await cls._redis.flushall()
 
     @classmethod
     async def get(cls, key: str):

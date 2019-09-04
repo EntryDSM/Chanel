@@ -66,7 +66,7 @@ class AdminService:
 
         if saved and refresh == saved.refresh_token:
             await self.cache_repo.delete(saved)
-            return json(dict(msg="logout succeed"), 202)
+            return json(dict(msg="logout succeed"), 200)
 
         else:
             raise Forbidden("incorrect refresh token")
