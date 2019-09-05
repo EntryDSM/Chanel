@@ -48,7 +48,7 @@ class ExternalServiceRepository:
         elif response["status"] == 403:
             raise Forbidden("authorization failed from inter-service")
 
-    async def get_applicant_info_from_hermes(self, email: str) -> Applicant:
+    async def get_applicant_info_from_hermes(self, email: str):
         response = await self.client.get(url=ONE_APPLICANT.format(email))
 
         if response["status"] == 200:
@@ -56,3 +56,6 @@ class ExternalServiceRepository:
 
         elif response["status"] == 401:
             raise Unauthorized("authentication failed from inter-service")
+
+        elif response["status"] == 404:
+            return None
