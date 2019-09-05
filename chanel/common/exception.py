@@ -29,3 +29,19 @@ class Conflict(SanicException):
 @add_status_code(500)
 class InternalServerError(SanicException):
     ...
+
+
+class InvalidSyntaxException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+
+class DuplicateDetectedException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
