@@ -1,12 +1,11 @@
 import re
 
-from sanic import Sanic
-from sanic.log import logger
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from python_http_client.exceptions import BadRequestsError, UnauthorizedError
 
 from chanel.common.client.vault import settings
+from chanel.common.exception import InvalidSyntaxException, BadRequest, Unauthorized
 
 
 def send_email(to_email: str, title: str, content: str):
@@ -23,15 +22,15 @@ def send_email(to_email: str, title: str, content: str):
 
         return response.status_code
 
-    except BadRequestsError:
-        logger.error("failed to send email: Bad request")
+    except BadRequestsError as e:
+        raise BadRequest("failed to send email.")
 
     except UnauthorizedError:
-        logger.error("failed to send email: Unauthorized")
+        raise Unauthorized("failed to send email.")
 
 
-def email_checker(email: str) -> bool:
+def email_checker(email: str) -> None:
     expression = re.compile('^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
-    result: bool = expression.match(email) is not None
 
-    return result
+    if not expression.match(email):
+        raise InvalidSyntaxException("Email with invalid form.")
