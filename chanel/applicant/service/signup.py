@@ -37,7 +37,6 @@ class SignUpService:
             await self.cache_repo.delete(temp_applicant)
 
         await self.cache_repo.save(temp_applicant.generate_verify_code())
-        print(temp_applicant.verify_code)
 
         send_email(temp_applicant.email, VERIFY_EMAIL_TITLE, VERIFY_EMAIL_CONTENT.format(temp_applicant.verify_code))
         return json(dict(msg="sent a email successful."))
