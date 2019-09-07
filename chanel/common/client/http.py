@@ -27,31 +27,31 @@ class HTTPClient:
         cls._session = None
 
     @classmethod
-    async def get(cls, url: str, **kwargs) -> dict:
+    async def get(cls, url: str) -> dict:
         session = await cls.get_session()
 
         async with session.get(
-                url, **kwargs
+                url, raise_for_status=True
         ) as response:
             data = await response.read()
             return dict(data=ujson.loads(data), status=response.status)
 
     @classmethod
-    async def post(cls, url: str, **kwargs) -> dict:
+    async def post(cls, url: str, json: str) -> dict:
         session = await cls.get_session()
 
         async with session.post(
-                url, **kwargs
+                url, json=json, raise_for_status=True
         ) as response:
             data = await response.read()
             return dict(data=ujson.loads(data), status=response.status)
 
     @classmethod
-    async def patch(cls, url: str, **kwargs) -> dict:
+    async def patch(cls, url: str) -> dict:
         session = await cls.get_session()
 
         async with session.patch(
-                url, **kwargs
+                url, raise_for_status=True
         ) as response:
             data = await response.read()
             return dict(data=ujson.loads(data), status=response.status)

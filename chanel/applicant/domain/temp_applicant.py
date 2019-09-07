@@ -11,8 +11,12 @@ class TempApplicant(BaseEntityClass):
     email: str
     verify_code: str
 
-    def __init__(self, email: str, verify_code):
+    def __init__(self, email: str, verify_code: str = None):
         self.email = email
+
+        if not verify_code:
+            verify_code = self.generate_verify_code()
+
         self.verify_code = verify_code
 
     @property
@@ -21,19 +25,22 @@ class TempApplicant(BaseEntityClass):
 
     @property
     def value(self) -> str:
-        return f"chanel:temp_applicant:verify{self.verify_token}"
+        return f"chanel:temp_applicant:verify:{self.verify_code}"
+
+    def generate_verify_code(self):
+        self.verify_code = token_urlsafe(4)
+        return self
 
     @classmethod
-    def generate_verify_code(cls):
-        cls.verify_code = token_urlsafe()
-
-    @classmethod
-    def data_to_entity(cls, email, verify_code):
+    def data_to_entity(cls, email, verify_code=None):
         if type(email) == bytes:
             email = email.split(b':')[3].decode()
 
         if type(verify_code) == bytes:
             verify_code = verify_code.split(b':')[3].decode()
+
+        if not verify_code:
+            verify_code = token_urlsafe(4)
 
         return TempApplicant(email, verify_code)
 
