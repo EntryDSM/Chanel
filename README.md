@@ -1,4 +1,4 @@
-# What is Chanel?
+# Chanel [![Build Status](https://travis-ci.org/EntryDSM/Chanel.svg?branch=master)](https://travis-ci.org/EntryDSM/Chanel) 
 대덕소프트웨어마이스터고등학교 입학전형시스템(EntryDSM)에서 사용자와 관리자의 토큰 관리를 담당하는 Restful Web API입니다.
 
 
