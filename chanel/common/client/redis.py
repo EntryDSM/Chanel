@@ -38,7 +38,7 @@ class RedisConnection:
         return temp if temp else None
 
     @classmethod
-    async def set(cls, key: str, value: str, expire: int = None, pair: bool = None) -> None:
+    async def set(cls, key: str, value: str, expire: int = None, pair: bool = False) -> None:
         redis_pool = await cls.get_redis_pool(settings.redis_connection_info)
         await redis_pool.set(key, value, expire=expire)
 
@@ -46,7 +46,7 @@ class RedisConnection:
             await redis_pool.set(value, key, expire=expire)
 
     @classmethod
-    async def delete(cls, key: str, pair: bool = None) -> None:
+    async def delete(cls, key: str, pair: bool = False) -> None:
         redis_pool = await cls.get_redis_pool(settings.redis_connection_info)
 
         if pair:

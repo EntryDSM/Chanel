@@ -37,7 +37,7 @@ class HTTPClient:
             return dict(data=ujson.loads(data), status=response.status)
 
     @classmethod
-    async def post(cls, url: str, json: str) -> dict:
+    async def post(cls, url: str, json) -> dict:
         session = await cls.get_session()
 
         async with session.post(
