@@ -32,16 +32,40 @@ class InternalServerError(SanicException):
 
 
 class InvalidSyntaxException(Exception):
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return self.msg
+    ...
 
 
 class DuplicateDetectedException(Exception):
-    def __init__(self, msg):
-        self.msg = msg
+    ...
+
+
+class BadRequestFromInterService(Exception):
+    def __init__(self):
+        self.message = "bad request from inter service"
 
     def __str__(self):
-        return self.msg
+        return self.message
+
+
+class ForbiddenFromInterService(Exception):
+    def __init__(self):
+        self.message = "forbidden from inter service"
+
+    def __str__(self):
+        return self.message
+
+
+class NotFoundFromInterService(Exception):
+    def __init__(self):
+        self.message = "not found from inter service"
+
+    def __str__(self):
+        return self.message
+
+
+class NotFoundFromCache(Exception):
+    def __init__(self):
+        self.message = "not found from cache"
+
+    def __str__(self):
+        return self.message
