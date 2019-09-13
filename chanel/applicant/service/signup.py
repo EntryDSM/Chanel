@@ -1,5 +1,5 @@
 from sanic.response import HTTPResponse, json
-from werkzeug.security import generate_password_hash
+from ujson import dumps
 
 from chanel.applicant.domain.temp_applicant import TempApplicant, TempApplicantCacheRepository
 from chanel.common import BadRequest
@@ -20,26 +20,22 @@ class SignUpService:
         self.external_repo = external_repo
         self.cache_repo = cache_repo
 
-    async def send_verify_email(self, temp_applicant: TempApplicant, resend: bool) -> HTTPResponse:
-        try:
-            await self.external_repo.get_applicant_info_from_hermes(temp_applicant.email)
+    async def create_account(self, email: str, password: str) -> HTTPResponse:
+        cached = await RedisConnection.get(f"chanel:temp_applicant:verified:{email}")
+        if not cached:
+            raise NotFound("account was not found.")
 
-        except not NotFoundFromInterService:
+        try:
+            await self.external_repo.get_applicant_info_from_hermes(email)
+
+        except NotFoundFromInterService:
+            if await self.external_repo.create_new_applicant(email, password):
+                await RedisConnection.delete(f"chanel:temp_applicant:verified:{email}")
+
+                return json(dict(msg="create user succeed."))
+
+        else:
             raise Conflict("user already exists.")
-
-        try:
-            await self.cache_repo.get_by_email(temp_applicant.email)
-
-        except not NotFoundFromCache:
-            if not resend:
-                raise Forbidden("please try again later.")
-
-            await self.cache_repo.delete(temp_applicant)
-
-        await self.cache_repo.save(temp_applicant.generate_verify_code())
-        send_email(temp_applicant.email, VERIFY_EMAIL_TITLE, VERIFY_EMAIL_CONTENT.format(temp_applicant.verify_code))
-
-        return json(dict(msg="sent a email successful."))
 
     async def check_verify_code(self, temp_applicant: TempApplicant) -> HTTPResponse:
         try:
@@ -53,17 +49,29 @@ class SignUpService:
 
         else:
             await self.cache_repo.delete(temp_applicant)
-            await RedisConnection.set(f"chanel:temp_applicant:verified:{temp_applicant.email}")
+            await RedisConnection.set(f"chanel:temp_applicant:verified:{temp_applicant.email}", dumps({"verified": True}))
 
             return json(dict(msg="verify user email succeed."), 200)
 
-    async def create_account(self, email: str, password: str) -> HTTPResponse:
-        if not RedisConnection.get(f"chanel:temp_applicant:verified:{email}"):
-            raise NotFound("account was not found.")
+    async def send_verify_email(self, temp_applicant: TempApplicant, resend: bool) -> HTTPResponse:
+        try:
+            await self.external_repo.get_applicant_info_from_hermes(temp_applicant.email)
 
-        elif await self.external_repo.get_applicant_info_from_hermes(email):
+        except NotFoundFromInterService:
+            try:
+                await self.cache_repo.get_by_email(temp_applicant.email)
+
+            except NotFoundFromCache:
+                await self.cache_repo.save(temp_applicant.generate_verify_code(), 180)
+                send_email(temp_applicant.email, VERIFY_EMAIL_TITLE,
+                           VERIFY_EMAIL_CONTENT.format(temp_applicant.verify_code))
+
+                return json(dict(msg="sent a email successful."))
+
+            if not resend:
+                raise Forbidden("please try again later.")
+
+            await self.cache_repo.delete(temp_applicant)
+
+        else:
             raise Conflict("user already exists.")
-
-        hashed_password = generate_password_hash(password, method="pbkdf2:sha256:50000")
-        if await self.external_repo.create_new_applicant(email, hashed_password):
-            return json(dict(msg="create user succeed."))

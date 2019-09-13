@@ -34,7 +34,6 @@ class CreateApplicantAccount(HTTPMethodView):
 
 class VerifyApplicantSignUpCode(HTTPMethodView):
     decorators = [
-        query_parameter_verify(["code"]),
         check_email_syntax(email_url_index=8)
     ]
 
@@ -43,7 +42,7 @@ class VerifyApplicantSignUpCode(HTTPMethodView):
         TempApplicantCacheRepository(RedisConnection)
     )
 
-    async def get(self, request: Request, email, verify_code) -> HTTPResponse:
+    async def get(self, request: Request, email: str, verify_code: str) -> HTTPResponse:
         temp_applicant = TempApplicant(email, verify_code)
         response = await self.service.check_verify_code(temp_applicant)
 
