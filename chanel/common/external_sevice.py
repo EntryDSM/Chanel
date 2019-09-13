@@ -20,10 +20,10 @@ class ExternalServiceRepository:
 
         except ClientResponseError as e:
             if e.status == 400:
-                BadRequestFromInterService()
+                raise BadRequestFromInterService()
 
             elif e.status == 403:
-                ForbiddenFromInterService()
+                raise ForbiddenFromInterService()
 
             else:
                 raise
@@ -62,7 +62,7 @@ class ExternalServiceRepository:
 
         except ClientResponseError as e:
             if e.status == 404:
-                raise NotFoundFromInterService("not found from inter-service")
+                raise NotFoundFromInterService()
 
             else:
                 raise
@@ -72,10 +72,10 @@ class ExternalServiceRepository:
             await self.client.post(url=CREATE_NEW_APPLICANT, json={"email": email, "password": password})
 
         except ClientResponseError as e:
-            if e.status == 401:
-                raise Unauthorized()
-
             if e.status == 409:
                 raise Conflict("Applicant already exists.")
+
+            else:
+                raise
 
         return True
