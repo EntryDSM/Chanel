@@ -56,11 +56,7 @@ class ForbiddenFromInterService(Exception):
 
 
 class NotFoundFromInterService(Exception):
-    def __init__(self):
-        self.message = "not found from inter service"
-
-    def __str__(self):
-        return self.message
+    pass
 
 
 class NotFoundFromCache(Exception):

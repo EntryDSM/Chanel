@@ -58,7 +58,7 @@ class ExternalServiceRepository:
     async def get_applicant_info_from_hermes(self, email: str) -> dict:
         try:
             response = await self.client.get(url=ONE_APPLICANT.format(email))
-            return loads(response["data"])
+            return response["data"]
 
         except ClientResponseError as e:
             if e.status == 404:

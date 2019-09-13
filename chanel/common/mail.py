@@ -35,16 +35,20 @@ def check_email_syntax(email_url_index: int = False):
     def decorator(f):
         @wraps(f)
         async def decorated_function(request: Request, *args, **kwargs):
-            email = request.json.get("email") if not email_url_index else request.url.split("/")[email_url_index]
+            if request.json and not email_url_index:
+                email = request.json.get("email")
 
-            if not email:
+            elif email_url_index:
+                email = request.url.split("/")[email_url_index]
+
+            else:
                 raise BadRequest("Email doesn't exist")
 
             expression = re.compile("^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
             if not expression.match(email):
                 raise BadRequest("Email with invalid form.")
 
-            response = await f(*args, **kwargs)
+            response = await f(request, *args, **kwargs)
 
             return response
 
