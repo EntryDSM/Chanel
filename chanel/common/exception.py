@@ -40,28 +40,16 @@ class DuplicateDetectedException(Exception):
 
 
 class BadRequestFromInterService(Exception):
-    def __init__(self):
-        self.message = "bad request from inter service"
-
-    def __str__(self):
-        return self.message
+    ...
 
 
 class ForbiddenFromInterService(Exception):
-    def __init__(self):
-        self.message = "forbidden from inter service"
-
-    def __str__(self):
-        return self.message
+    ...
 
 
 class NotFoundFromInterService(Exception):
-    pass
+    ...
 
 
 class NotFoundFromCache(Exception):
-    def __init__(self):
-        self.message = "not found from cache"
-
-    def __str__(self):
-        return self.message
+    ...
