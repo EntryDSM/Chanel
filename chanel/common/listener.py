@@ -2,7 +2,7 @@ from sanic.log import logger
 
 from chanel.common.client.redis import RedisConnection
 from chanel.common.client.vault import settings
-from common.client.http import HTTPClient
+from chanel.common.client.http import HTTPClient
 
 
 async def initialize(app, loop):
