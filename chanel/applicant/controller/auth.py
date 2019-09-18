@@ -33,7 +33,7 @@ class RefreshApplicantToken(HTTPMethodView):
         ApplicantCacheRepository(RedisConnection)
     )
 
-    async def post(self, request):
+    async def patch(self, request):
         response = await self.service.refresh(request)
 
         return response
