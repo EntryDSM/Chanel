@@ -1,8 +1,10 @@
 import re
+from functools import wraps
 
+from python_http_client.exceptions import BadRequestsError, UnauthorizedError
+from sanic.request import Request
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
-from python_http_client.exceptions import BadRequestsError, UnauthorizedError
 
 from chanel.common.client.vault import settings
 from chanel.common.exception import InvalidSyntaxException, BadRequest, Unauthorized
@@ -22,15 +24,34 @@ def send_email(to_email: str, title: str, content: str):
 
         return response.status_code
 
-    except BadRequestsError as e:
+    except BadRequestsError:
         raise BadRequest("failed to send email.")
 
     except UnauthorizedError:
         raise Unauthorized("failed to send email.")
 
 
-def email_checker(email: str) -> None:
-    expression = re.compile('^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+def check_email_syntax(email_url_index: int = False):
+    def decorator(f):
+        @wraps(f)
+        async def decorated_function(request: Request, *args, **kwargs):
+            if request.json and not email_url_index:
+                email = request.json.get("email")
 
-    if not expression.match(email):
-        raise InvalidSyntaxException("Email with invalid form.")
+            elif email_url_index:
+                email = request.url.split("/")[email_url_index]
+
+            else:
+                raise BadRequest("Email doesn't exist")
+
+            expression = re.compile("^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
+            if not expression.match(email):
+                raise BadRequest("Email with invalid form.")
+
+            response = await f(request, *args, **kwargs)
+
+            return response
+
+        return decorated_function
+
+    return decorator

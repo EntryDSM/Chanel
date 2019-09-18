@@ -1,9 +1,10 @@
+from aiohttp import ClientResponseError
 from ujson import loads
 
-from chanel.applicant.domain.applicant import Applicant
 from chanel.common.client.http import HTTPClient
-from chanel.common.constant import GET_ADMIN_AUTH, ONE_ADMIN, GET_APPLICANT_AUTH, ONE_APPLICANT
-from chanel.common.exception import BadRequest, Unauthorized, Forbidden, NotFound
+from chanel.common.constant import GET_ADMIN_AUTH, ONE_ADMIN, GET_APPLICANT_AUTH, ONE_APPLICANT, CREATE_NEW_APPLICANT
+from chanel.common.exception import Unauthorized, NotFoundFromInterService, \
+    BadRequestFromInterService, ForbiddenFromInterService, Conflict
 
 
 class ExternalServiceRepository:
@@ -13,49 +14,68 @@ class ExternalServiceRepository:
         self.client = client
 
     async def get_admin_auth_from_hermes(self, admin_id: str, password: str) -> bool:
-        response = await self.client.post(url=GET_ADMIN_AUTH.format(admin_id), json={"password": password})
-
-        if response["status"] == 200:
+        try:
+            await self.client.post(url=GET_ADMIN_AUTH.format(admin_id), json={"password": password})
             return True
 
-        elif response["status"] == 400:
-            raise BadRequest("bad request from inter-service")
+        except ClientResponseError as e:
+            if e.status == 400:
+                raise BadRequestFromInterService()
 
-        elif response["status"] == 403:
-            raise Forbidden("authorization failed from inter-service")
+            elif e.status == 403:
+                raise ForbiddenFromInterService()
+
+            else:
+                raise
 
     async def get_admin_info_from_hermes(self, admin_id: str):
-        response = await self.client.get(url=ONE_ADMIN.format(admin_id))
-
-        if response["status"] == 200:
+        try:
+            response = await self.client.get(url=ONE_ADMIN.format(admin_id))
             return response["data"]
 
-        elif response["status"] == 401:
-            raise Unauthorized("authentication failed from inter-service")
+        except ClientResponseError as e:
+            if e.status == 404:
+                raise NotFoundFromInterService()
 
-        elif response["status"] == 404:
-            raise NotFound("admin not found from inter-service")
+            else:
+                raise
 
     async def get_applicant_auth_from_hermes(self, email: str, password: str) -> bool:
-        response = await self.client.post(url=GET_APPLICANT_AUTH.format(email), json={"password": password})
-
-        if response["status"] == 200:
+        try:
+            await self.client.post(url=GET_APPLICANT_AUTH.format(email), json={"password": password})
             return True
 
-        elif response["status"] == 400:
-            raise BadRequest("bad request from inter-service")
+        except ClientResponseError as e:
+            if e.status == 400:
+                raise BadRequestFromInterService()
 
-        elif response["status"] == 403:
-            raise Forbidden("authorization failed from inter-service")
+            elif e.status == 403:
+                raise ForbiddenFromInterService()
 
-    async def get_applicant_info_from_hermes(self, email: str):
-        response = await self.client.get(url=ONE_APPLICANT.format(email))
+            else:
+                raise
 
-        if response["status"] == 200:
-            return loads(response["data"])
+    async def get_applicant_info_from_hermes(self, email: str) -> dict:
+        try:
+            response = await self.client.get(url=ONE_APPLICANT.format(email))
+            return response["data"]
 
-        elif response["status"] == 401:
-            raise Unauthorized("authentication failed from inter-service")
+        except ClientResponseError as e:
+            if e.status == 404:
+                raise NotFoundFromInterService()
 
-        elif response["status"] == 404:
-            return None
+            else:
+                raise
+
+    async def create_new_applicant(self, email, password) -> bool:
+        try:
+            await self.client.post(url=CREATE_NEW_APPLICANT, json={"email": email, "password": password})
+
+        except ClientResponseError as e:
+            if e.status == 409:
+                raise Conflict("Applicant already exists.")
+
+            else:
+                raise
+
+        return True

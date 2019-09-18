@@ -4,6 +4,7 @@ from typing import Type
 
 from chanel.common.client.redis import RedisConnection
 from chanel.common.domain.entity import BaseEntityClass
+from chanel.common.exception import NotFoundFromCache
 
 
 @dataclass
@@ -58,9 +59,15 @@ class TempApplicantCacheRepository:
     async def get_by_email(self, email: str) -> TempApplicant:
         refresh = await self.client.get(f"chanel:temp_applicant:verify:{email}")
 
-        return TempApplicant.data_to_entity(email, refresh) if refresh else None
+        if not refresh:
+            raise NotFoundFromCache()
+
+        return TempApplicant.data_to_entity(email, refresh)
 
     async def get_by_refresh(self, verify_code: str) -> TempApplicant:
         email = await self.client.get(f"chanel:applicant:verify:{verify_code}")
 
-        return TempApplicant.data_to_entity(email, verify_code) if email else None
+        if not email:
+            raise NotFoundFromCache()
+
+        return TempApplicant.data_to_entity(email, verify_code)
