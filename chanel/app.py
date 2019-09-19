@@ -5,6 +5,7 @@ from sanic import Sanic
 from entry_logger_sanic import set_logger
 from sanic_jwt_extended import JWTManager
 
+from chanel.common.base_handler import add_error_handlers
 from chanel.common.client.vault import settings
 from chanel.admin.controller import admin_blueprint
 from chanel.applicant.controller import applicant_blueprint
@@ -20,6 +21,8 @@ def create_app():
 
     _app.register_listener(initialize, "before_server_start")
     _app.register_listener(finalize, "after_server_stop")
+
+    add_error_handlers(_app)
 
     _app.blueprint(applicant_blueprint)
     _app.blueprint(admin_blueprint)
