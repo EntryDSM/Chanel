@@ -5,8 +5,7 @@ from chanel.applicant.domain.temp_applicant import TempApplicant, TempApplicantC
 from chanel.common import BadRequest
 from chanel.common.client.redis import RedisConnection
 from chanel.common.constant import VERIFY_EMAIL_TITLE, VERIFY_EMAIL_CONTENT
-from chanel.common.exception import Conflict, Forbidden, Unauthorized, NotFound, NotFoundFromInterService, \
-    NotFoundFromCache
+from chanel.common.exception import Conflict, Forbidden, Unauthorized, NotFound
 from chanel.common.external_sevice import ExternalServiceRepository
 from chanel.common.mail import send_email
 
@@ -25,10 +24,8 @@ class SignUpService:
         if not cached:
             raise NotFound("account was not found.")
 
-        try:
-            await self.external_repo.get_applicant_info_from_hermes(email)
-
-        except NotFoundFromInterService:
+        exists_on_hermes = await self.external_repo.get_applicant_info_from_hermes(email)
+        if not exists_on_hermes:
             if await self.external_repo.create_new_applicant(email, password):
                 await RedisConnection.delete(f"chanel:temp_applicant:verified:{email}")
 
@@ -38,13 +35,12 @@ class SignUpService:
             raise Conflict("user already exists.")
 
     async def check_verify_code(self, temp_applicant: TempApplicant) -> HTTPResponse:
-        try:
-            already_exists_on_cache = await self.cache_repo.get_by_email(temp_applicant.email)
+        exists_on_cache = await self.cache_repo.get_by_email(temp_applicant.email)
 
-        except NotFoundFromCache:
+        if not exists_on_cache:
             raise BadRequest("bad request.")
 
-        if temp_applicant != already_exists_on_cache:
+        if temp_applicant != exists_on_cache:
             raise Unauthorized("incorrect verification code.")
 
         else:
