@@ -4,8 +4,8 @@ from sanic.request import Request
 from sanic.response import json
 
 
-async def base_handler(request: Request, exception=SanicException):
-    return json(body=dict(msg=exception.args[0], status=exception.status_code))
+async def base_handler(request: Request, exception: SanicException):
+    return json(body={"msg": exception.args[0]}, status=exception.status_code)
 
 
 def add_error_handlers(app: Sanic):

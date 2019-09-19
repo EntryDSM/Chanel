@@ -56,11 +56,11 @@ class TempApplicantCacheRepository:
     async def delete(self, temp_applicant: TempApplicant) -> None:
         await self.client.delete(temp_applicant.key, pair=True)
 
-    async def get_by_email(self, email: str) -> TempApplicant:
+    async def get_by_email(self, email: str):
         refresh = await self.client.get(f"chanel:temp_applicant:verify:{email}")
 
         if not refresh:
-            raise NotFoundFromCache()
+            return None;
 
         return TempApplicant.data_to_entity(email, refresh)
 

@@ -49,29 +49,25 @@ class SignUpService:
 
         else:
             await self.cache_repo.delete(temp_applicant)
-            await RedisConnection.set(f"chanel:temp_applicant:verified:{temp_applicant.email}", dumps({"verified": True}))
+            await RedisConnection.set(f"chanel:temp_applicant:verified:{temp_applicant.email}",
+                                      dumps({"verified": True}))
 
             return json(dict(msg="verify user email succeed."), 200)
 
     async def send_verify_email(self, temp_applicant: TempApplicant, resend: bool) -> HTTPResponse:
-        try:
-            await self.external_repo.get_applicant_info_from_hermes(temp_applicant.email)
+        exists_on_hermes = await self.external_repo.get_applicant_info_from_hermes(temp_applicant.email)
+        exists_on_cache = await self.cache_repo.get_by_email(temp_applicant.email)
 
-        except NotFoundFromInterService:
-            try:
-                await self.cache_repo.get_by_email(temp_applicant.email)
+        if exists_on_hermes:
+            raise Conflict("user already exists.")
 
-            except NotFoundFromCache:
-                await self.cache_repo.save(temp_applicant.generate_verify_code(), 180)
-                send_email(temp_applicant.email, VERIFY_EMAIL_TITLE,
-                           VERIFY_EMAIL_CONTENT.format(temp_applicant.verify_code))
-
-                return json(dict(msg="sent a email successful."))
-
+        if exists_on_cache:
             if not resend:
                 raise Forbidden("please try again later.")
 
             await self.cache_repo.delete(temp_applicant)
 
-        else:
-            raise Conflict("user already exists.")
+        await self.cache_repo.save(temp_applicant.generate_verify_code())
+        send_email(temp_applicant.email, VERIFY_EMAIL_TITLE, VERIFY_EMAIL_CONTENT.format(temp_applicant.verify_code))
+
+        return json(dict(msg="sent a email successful."))
