@@ -8,7 +8,7 @@ SERVICE_NAME = environ.get("SERVICE_NAME")
 API_VER = environ.get("API_VER", "v1")
 
 APPLICANT = "Applicant"
-HERMES = "http://localhost:8888/api/v1"
+HERMES = "http://hermes/api/v1"
 CREATE_NEW_APPLICANT = HERMES + "/applicant"
 ONE_APPLICANT = HERMES + "/applicant/{0}"
 GET_APPLICANT_AUTH = HERMES + "/applicant/{0}/authorization"
