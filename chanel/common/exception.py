@@ -45,11 +45,3 @@ class BadRequestFromInterService(Exception):
 
 class ForbiddenFromInterService(Exception):
     ...
-
-
-class NotFoundFromInterService(Exception):
-    ...
-
-
-class NotFoundFromCache(Exception):
-    ...

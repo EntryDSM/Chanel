@@ -1,10 +1,8 @@
 from aiohttp import ClientResponseError
-from ujson import loads
 
 from chanel.common.client.http import HTTPClient
 from chanel.common.constant import GET_ADMIN_AUTH, ONE_ADMIN, GET_APPLICANT_AUTH, ONE_APPLICANT, CREATE_NEW_APPLICANT
-from chanel.common.exception import Unauthorized, NotFoundFromInterService, \
-    BadRequestFromInterService, ForbiddenFromInterService, Conflict
+from chanel.common.exception import BadRequestFromInterService, ForbiddenFromInterService, Conflict
 
 
 class ExternalServiceRepository:
@@ -35,7 +33,7 @@ class ExternalServiceRepository:
 
         except ClientResponseError as e:
             if e.status == 404:
-                raise NotFoundFromInterService()
+                return None
 
             else:
                 raise
@@ -62,7 +60,7 @@ class ExternalServiceRepository:
 
         except ClientResponseError as e:
             if e.status == 404:
-                return None;
+                return None
 
             else:
                 raise
