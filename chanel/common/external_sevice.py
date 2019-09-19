@@ -55,14 +55,14 @@ class ExternalServiceRepository:
             else:
                 raise
 
-    async def get_applicant_info_from_hermes(self, email: str) -> dict:
+    async def get_applicant_info_from_hermes(self, email: str):
         try:
             response = await self.client.get(url=ONE_APPLICANT.format(email))
             return response["data"]
 
         except ClientResponseError as e:
             if e.status == 404:
-                raise NotFoundFromInterService()
+                return None;
 
             else:
                 raise
