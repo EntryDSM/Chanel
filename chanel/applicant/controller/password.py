@@ -19,7 +19,7 @@ class SendPasswordResetVerificationEmail(HTTPMethodView):
         ExternalServiceRepository(HTTPClient), None
     )
 
-    def post(self, request: Request) -> HTTPResponse:
+    async def post(self, request: Request) -> HTTPResponse:
         email = request.json.get("email")
 
         response = await self.service.send_verify_email(email)
@@ -34,7 +34,7 @@ class CheckVerifyCodeExists(HTTPMethodView):
         ExternalServiceRepository(HTTPClient), None
     )
 
-    def get(self, request: Request, email: str, verify_code: str) -> HTTPResponse:
+    async def get(self, request: Request, email: str, verify_code: str) -> HTTPResponse:
         response = await self.service.check_verify_code(email, verify_code)
 
         return response
@@ -47,7 +47,7 @@ class ResetApplicantPassword(HTTPMethodView):
         ExternalServiceRepository(HTTPClient), None
     )
 
-    def put(self, request: Request) -> HTTPResponse:
+    async def put(self, request: Request) -> HTTPResponse:
         email = request.json.get("email")
         password = request.json.get("password")
 
@@ -58,4 +58,4 @@ class ResetApplicantPassword(HTTPMethodView):
 
 password_bp.add_route(ResetApplicantPassword.as_view(), "/reset")
 password_bp.add_route(CheckVerifyCodeExists.as_view(), "/reset/<email>/<verify_code>")
-password_bp.add_route(ResetApplicantPassword.as_view(), "/reset")
+password_bp.add_route(SendPasswordResetVerificationEmail.as_view(), "/reset")
