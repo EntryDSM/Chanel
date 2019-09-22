@@ -3,7 +3,8 @@ from sanic_jwt_extended import create_refresh_token, create_access_token
 
 from chanel.applicant.domain.applicant import Applicant, ApplicantCacheRepository
 from chanel.common.constant import APPLICANT
-from chanel.common.exception import Forbidden, BadRequest
+from chanel.common.exception import Forbidden, BadRequest, BadRequestFromInterService, ForbiddenFromInterService, \
+    NotFoundFromInterService, NotFound
 from chanel.common.external_sevice import ExternalServiceRepository
 
 
@@ -19,7 +20,14 @@ class ApplicantService:
         email = request.json.get("email")
         password = request.json.get("password")
 
-        authorized = await self.external_repo.get_applicant_auth_from_hermes(email, password)
+        try:
+            authorized = await self.external_repo.get_applicant_auth_from_hermes(email, password)
+        except BadRequestFromInterService:
+            raise BadRequest("bad request from hermes.")
+        except ForbiddenFromInterService:
+            raise Forbidden("forbidden from hermes.")
+        except NotFoundFromInterService:
+            raise NotFound("not found from hermes.")
 
         if authorized:
             saved_refresh = await self.cache_repo.get_by_email(email)

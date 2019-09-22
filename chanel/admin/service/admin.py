@@ -2,7 +2,8 @@ from sanic.response import json
 from sanic_jwt_extended import create_refresh_token, create_access_token
 
 from chanel.admin.domain.admin import AdminCacheRepository, Admin
-from chanel.common.exception import Forbidden, BadRequest
+from chanel.common.exception import Forbidden, BadRequest, BadRequestFromInterService, ForbiddenFromInterService, \
+    NotFoundFromInterService, NotFound
 from chanel.common.external_sevice import ExternalServiceRepository
 
 
@@ -18,7 +19,15 @@ class AdminService:
         admin_id = request.json.get("admin_id")
         password = request.json.get("password")
 
-        authorized = await self.external_repo.get_admin_auth_from_hermes(admin_id, password)
+        try:
+            authorized = await self.external_repo.get_admin_auth_from_hermes(admin_id, password)
+        except BadRequestFromInterService:
+            raise BadRequest("bad request from hermes.")
+        except ForbiddenFromInterService:
+            raise Forbidden("forbidden from hermes.")
+        except NotFoundFromInterService:
+            raise NotFound("not found from hermes.")
+
         admin_info = await self.external_repo.get_admin_info_from_hermes(admin_id) if authorized else None
 
         if authorized and admin_info:

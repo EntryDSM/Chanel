@@ -2,7 +2,8 @@ from aiohttp import ClientResponseError
 
 from chanel.common.client.http import HTTPClient
 from chanel.common.constant import GET_ADMIN_AUTH, ONE_ADMIN, GET_APPLICANT_AUTH, ONE_APPLICANT, CREATE_NEW_APPLICANT
-from chanel.common.exception import BadRequestFromInterService, ForbiddenFromInterService, Conflict
+from chanel.common.exception import BadRequestFromInterService, ForbiddenFromInterService, Conflict, \
+    NotFoundFromInterService
 
 
 class ExternalServiceRepository:
@@ -50,6 +51,9 @@ class ExternalServiceRepository:
             elif e.status == 403:
                 raise ForbiddenFromInterService()
 
+            elif e.status == 404:
+                raise NotFoundFromInterService()
+
             else:
                 raise
 
@@ -60,6 +64,18 @@ class ExternalServiceRepository:
 
         except ClientResponseError as e:
             if e.status == 404:
+                return None
+
+            else:
+                raise
+
+    async def patch_one_applicant(self, email: str, data: dict):
+        try:
+            response = await self.client.patch(url=ONE_APPLICANT.format(email), json=data)
+            return response["data"]
+
+        except ClientResponseError as e:
+            if e.status == 400:
                 return None
 
             else:
