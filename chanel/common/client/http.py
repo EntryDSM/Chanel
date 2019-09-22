@@ -47,11 +47,11 @@ class HTTPClient:
             return dict(data=ujson.loads(data), status=response.status)
 
     @classmethod
-    async def patch(cls, url: str) -> dict:
+    async def patch(cls, url: str, json) -> dict:
         session = await cls.get_session()
 
         async with session.patch(
-                url, raise_for_status=True
+                url, json=json, raise_for_status=True
         ) as response:
             data = await response.read()
             return dict(data=ujson.loads(data), status=response.status)
