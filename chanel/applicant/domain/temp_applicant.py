@@ -50,7 +50,7 @@ class TempApplicantCacheRepository:
         self.client = client
 
     async def save(self, temp_applicant: TempApplicant, expire: int = None) -> None:
-        await self.client.set(temp_applicant.key, temp_applicant.value, expire, pair=True)
+        await self.client.set(temp_applicant.key, temp_applicant.value, expire=expire, pair=True)
 
     async def delete(self, temp_applicant: TempApplicant) -> None:
         await self.client.delete(temp_applicant.key, pair=True)
@@ -59,7 +59,7 @@ class TempApplicantCacheRepository:
         refresh = await self.client.get(f"chanel:temp_applicant:verify:{email}")
 
         if not refresh:
-            return None;
+            return None
 
         return TempApplicant.data_to_entity(email, refresh)
 
