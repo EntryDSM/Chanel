@@ -5,7 +5,7 @@ from ujson import dumps
 
 from chanel.applicant.domain.applicant import ApplicantCacheRepository
 from chanel.common.client.redis import RedisConnection
-from chanel.common.exception import NotFound, Unauthorized
+from chanel.common.exception import NotFound, Unauthorized, Conflict
 from chanel.common.external_sevice import ExternalServiceRepository
 from chanel.common.mail import send_email
 from chanel.common.constant import CHANGE_PASSWORD_EMAIL_TITLE, CHANGE_PASSWORD_EMAIL_CONTENT
@@ -26,8 +26,8 @@ class ChangePasswordService:
         exists_on_hermes = await self.external_repo.get_applicant_info_from_hermes(email)
         exists_on_cache = await RedisConnection.get(BASE_VERIFY_KEY.format(email))
 
-        if not exists_on_hermes:
-            raise NotFound("user not found.")
+        if exists_on_hermes:
+            raise Conflict("account already exists.")
 
         if exists_on_cache:
             await RedisConnection.delete(BASE_VERIFY_KEY.format(email), pair=True)
